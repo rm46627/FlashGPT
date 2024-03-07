@@ -1,0 +1,19 @@
+version: "3.9" 
+
+services:
+  postgres: 
+    container_name: postgres
+    image: "postgres" 
+    environment: 
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+    volumes: 
+      - ./db-data:/var/lib/postgresql/data/ 
+      - ./sql:/docker-entrypoint-initdb.d/:ro 
+    ports: 
+      - "5432:5432"
+  spring:
+    container_name: spring
+    build: ./java
+    ports:
+      - "8080:8080"
