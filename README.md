@@ -1,4 +1,4 @@
-# BrainStorm
+# FlashGPT
 Aplikacja SpringBoot dla serwisu z fiszkami. Daje możliwość tworzenia grup, przedmiotów w grupach oraz talii fiszek dla danych przedmiotów. Zaimplementowano chat tekstowy oraz generowanie podpowiedzi do rewersu fiszek od ChatGPT.
 
 Uruchomienie:
