@@ -1,11 +1,14 @@
-# Fiszkord
-Spring backend.
+# BrainStorm
+Aplikacja SpringBoot dla serwisu z fiszkami. Daje możliwość tworzenia grup, przedmiotów w grupach oraz talii fiszek dla danych przedmiotów. Zaimplementowano chat tekstowy oraz generowanie podpowiedzi do rewersu fiszek od ChatGPT.
+
+Uruchomienie:
+>docker-compose -p flashgpt up --build --remove-orphans --force-recreate
 
 ## Użytkownicy
 ---
 > POST /api/auth/register
 
-Rejestracja. Wymagane body:
+Rejestracja. Wymagane parametry:
 - firstname: String
 - lastname: String
 - email: String
@@ -26,14 +29,15 @@ Zwraca wiadomość zalogowanemu użytkownikowi.
 
 > GET /api/users[?id={}]
 
-Zwraca dane użytkownika. Parametr id jest opcjonalny, w przypadku
-jego braku zwraca aktualnie zalogowanego użytkownika.
+Zwraca dane użytkownika. Opcjonalny parametr:
+id
+w przypadku jego braku zwraca aktualnie zalogowanego użytkownika.
 
 ---
 
 > POST /api/auth/login
 
-Logowanie. Wymagane body:
+Logowanie. Wymagane parametry:
 - email: String
 - password: String
 
@@ -45,7 +49,7 @@ Zwraca:
 
 > PATCH /api/users
 
-Zmiana hasła. Wymagane body:
+Zmiana hasła. Wymagane parametry:
 - currentPassword: String
 - newPassword: String
 - confirmationPassword: String
@@ -66,47 +70,46 @@ Wylogowanie.
 
 ---
 ## Grupy (wymaga roli USER)  
-### Tworzenie grupy   
 > POST /api/group/create  
 
-Wymaga access token jako bearer token. Wymagane body:  
+Tworzenie grupy. Wymaga access token jako bearer token. Wymagane body:  
 - name: String
 - code: String
 
-### Dołączanie do grupy  
 > POST /api/group/join  
 
-Wymaga access token jako bearer token. Wymagane body:  
+Dołączanie do grupy. Wymaga access token jako bearer token. Wymagane body:  
 - code: String
 
-### Lista grup użytkownika
 > GET /api/group/user-groups
 
-Wymaga access token jako bearer token.
+Zwraca listę grup użytkownika. Wymaga access token jako bearer token.
 
 ---
 ## Przedmioty (wymaga roli USER)  
-### Dodanie przedmiotu do grupy   
 > POST /api/subject/create-subject
 
-Wymaga access token jako bearer token. Wymagane body:  
+Dodanie przedmiotu do grupy. Wymaga access token jako bearer token. Wymagane body:  
 - groupId: Integer
 - name: String
 
-### Znajdź przedmioty danej grupy
 > GET /api/subject/get-subjects?groupId={}
 
-Wymaga access token jako bearer token. Wymagany parametr:  
+Zwróć przedmioty danej grupy. Wymaga access token jako bearer token. Wymagany parametr:  
 - groupId: Integer
 
 ---
-## Wiadomości
-### Podłączanie do brokera czatu
-Lokalnie uruchomiony serwer będzie działał pod adresem `http://localhost:8080/ws`.
+## Chat
 
-Dla wiadomości czatu danego przedmiotu należy zasubskrybować topic `/topic/{subjectId}`.
+> http://localhost:8080/ws 
 
-Przy wysyłaniu wiadomości należy użyć ścieżki `/app/{subjectId}`.
+Broker czatu. Lokalnie uruchomiony serwer działa pod tym adresem.   
+> /topic/{subjectId}  
+
+Dla wiadomości czatu danego przedmiotu należy zasubskrybować topic.
+> /app/{subjectId}
+
+Ścieżka do wysyłania wiadomości.
 Zawartość wiadomości to tekstowy JSON z polami:
 
 - sender: String (id użytkownika)
@@ -114,10 +117,9 @@ Zawartość wiadomości to tekstowy JSON z polami:
 
 Serwer przesyła do subskrybentów JSON z polami (sender, content, id, date).
 
-### Wiadomości przedmiotu
 > GET /api/message/?subjectId={}&timestamp={}
 
-Zwraca najnowsze 20 wiadomości dla przedmiotu, opcjonalnie 20
+Zwraca wiadomości przedmiotu. Zwraca najnowsze 20 wiadomości dla przedmiotu, opcjonalnie 20
 ostatnich wiadomości przed datą *timestamp*.
 
 Wymagany parametr:
@@ -129,56 +131,39 @@ Opcjonalny parametr
 ---
 
 ## Fiszki (wymaga roli USER)
-
-### Stworzenie talii fiszek
-
 > POST /api/deck/create
 
-Wymaga access token jako bearer token. Wymagane body:
+Tworzenie talii fiszek. Wymaga access token jako bearer token. Wymagane parametry:
 - name: String
 - groupId: Integer
 - subjectId: Integer
 
-### Dodanie fiszki do talii
-
 > POST /api/flashcards/create-flashcard
 
-Wymaga access token jako bearer token. Wymagane body:
+Dodanie fiszki do talii. Wymaga access token jako bearer token. Wymagane body:
 - front: String
 - back: String
 - groupId: Integer
 - deckId: Integer
 
-### Talie danego przedmiotu
-
 > GET /api/decks/subject-decks?subjectId={}  
 
-Zwraca wszystkie talie i ich fiszki dla danego przedmiotu  
+Zwraca wszystkie talie danego przedmiotu i jego fiszki
 Wymaga access token jako bearer token. Wymagany parametr:
 - subjectId: Integer
 
-### Fiszki danej talii
-
 > GET /api/flashcards/deck-flashcards?groupId={}&deckId={}
 
-Zwraca fiszki danej talii.
-Wymaga access token jako bearer token. Wymagane parametry:
+Zwraca fiszki danej talii. Wymaga access token jako bearer token. Wymagane parametry:
 - groupId: Integer
 - subjectId: Integer
 ---
 
 ## GPT (wymaga roli USER)
 
-### Podpowiedź rewersu dla fiszki
+> GET /api/gpt/flashcard-hint?groupName={}&userPrompt={}
 
-> #### GET /api/gpt/flashcard-hint?groupName={}&userPrompt={}
-
-Zwraca odpowiedź od gpt-3.5-turbo na zapytanie:
-> Podaj wyjaśnienie zagadnienia z kategorii `groupName' na max 256 znaków. 
-> Nie opisuj co oznacza podana wcześniej kategoria, 
-> tylko weź ją pod uwagę wyjaśniając następujące zagadnienie: 'userPrompt'.
-
-Wymaga access token jako bearer token. Parametry:
+Podpowiedź rewersu dla fiszki. Zwraca odpowiedź od gpt-3.5-turbo. Wymaga access token jako bearer token. Parametry:
 - groupName: String
 - userPrompt: String
 ---
