@@ -1,5 +1,5 @@
 # FlashGPT
-Aplikacja SpringBoot dla serwisu z fiszkami. Daje możliwość tworzenia grup, przedmiotów w grupach oraz talii fiszek dla danych przedmiotów. Zaimplementowano chat tekstowy oraz generowanie podpowiedzi do rewersu fiszek od ChatGPT.
+Aplikacja SpringBoot dla portalu do grupowego tworzenia i dzielenia się fiszkami. Daje możliwość tworzenia grup, przedmiotów w grupach oraz talii fiszek dla danych przedmiotów. Zaimplementowano uwierzytelnianie i autoryzację JWT, chat tekstowy oraz wspomaganie tworzenia fiszek przez ChatGPT.
 
 Uruchomienie:
 >docker-compose -p flashgpt up --build --remove-orphans --force-recreate
